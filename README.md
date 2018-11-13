@@ -119,7 +119,7 @@ do
         yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
 ```
 - 修改完后就可以提交脚本
-- ** 注意：这里把wyt.opt修改为你们对应的任务名字 **
+- **注意：这里把wyt.opt修改为你们对应的任务名字**
 ```bash
         printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
         label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
