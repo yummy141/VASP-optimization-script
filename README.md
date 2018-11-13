@@ -9,6 +9,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 
 ---
 
+
 ## 晶格优化回顾
 - 按照惯例，大家进到TH-1A各自的目录里，然后cp -r ../novice_country/Lesson2/  ./, 然后 cd Lesson2就可以看到基础的VASP四件套：  
     - ![2.png](/img/2.png)
@@ -22,6 +23,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 
 ---
 
+
 ## 运行结果
 - 在讲脚本之前，我们先看一下运行脚本后的结果（rz上传脚本*.sh后，chmod a+x *.sh, 然后./*.sh 运行 or rz上传脚本*.py， python ./*.py运行）
     - ![3.png](/img/3.png)
@@ -30,6 +32,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 - 因此我写了两个脚本，分别来执行这两步操作
 
 ---
+
 
 ### bash脚本
 第一个脚本Sub_opt_TH.sh，是针对第一步来做的，我们一段一段来读程序，看的时候一定要先想想这一行程序是什么意思，再看我的注解，要习惯直接读程序代码：
@@ -146,3 +149,59 @@ for i in $(find $path -name OUTCAR | sed 's/\/OUTCAR//g') ; do
     - 而为什么会有个管道|呢？
     - 其实就是把find找到的东西输送给sed作为输入, 运行一下命令，就可以得到我们想要的结果:
         - ![6.png](/img/6.png)
+- 之后就只需要在循环体里把能量取出来就可以了
+```bash
+    cd $i
+```
+- 进入$i这个文件夹
+```bash
+    Energy=`grep TOTEN OUTCAR|tail -1|awk '{print $5}'`
+```
+- 这个命令呢，同样是通过管道，把能量取出来
+    - grep是在OUTCAR中搜索TOTEN，得到
+        - ![7.png](/img/7.png) 
+    - 但我们要的是最后优化的能量，所以用tail -1过滤一下：
+        - ![8.png](/img/8.png) 
+    - 那再精确点，我们想要的是上图的-21.45537338，所以我们需要再过滤：
+        - ![9.png](/img/9.png) 
+    - 这里print $5表示打印第五个字段，你可以看到-21.45537338是在图中的第五个位置
+```bash
+    result=$(awk -va=$Energy -vb=$Energy_minimum 'BEGIN{print a<b?1:0}')
+```
+- 接下来呢，我们将能量与最小能量比较
+    - -va=$Energy -vb=$Energy_minimum
+        - 表示分别把能量赋值给a和b
+    - 然后就比较a和b, print a<b?1:0
+        - 如果你们熟悉C的话，就会非常熟悉，？叫做三目运算符，如果a<b呢，就输出为1，反之则为0
+    - 注意：因为bash下的变量都默认为字符变量，所以才需要这么麻烦地比较。
+```bash
+    if [ $result -eq 1 ];then
+    Energy_minimum=$Energy
+    vector_a=`awk 'NR==3 {print; exit}' POSCAR`
+    vector_b=`awk 'NR==4 {print; exit}' POSCAR`
+    fi
+```
+- 接着呢，我们用个if语句，如果能量比当前最小能量低，我们就把它记录下来
+- `awk 'NR==3 {print; exit}' POSCAR`
+    - 同时记录下对应POSCAR中的晶格常数，这里NR==3，表示第三行，注意NR是awk的内置变量
+- 同理，NR==4表示第四行
+```bash
+    sed -i "${line}s/$/ ${Energy}/" $worklist
+```
+- 然后我们就在worlist中记录下对应的能量
+- -i表示修改并保存
+- ${line}s/表示选择第line行
+- $/表示行末
+- ${Energy}/表示我们记录的数据
+- 所以合起来，就是在第line行行末记录下Energy
+```bash
+    line=$(($line+1))
+    cd $path;
+done
+```
+- 递增line，以及返回原始目录
+```bash
+echo -e "Best POSCAR:\n$vector_a\n$vector_b\nEnergy_minimum: $Energy_minimum eV"
+```
+- 这里就是用echo命令把最优晶格和能量输出出来
+- -e表示把转义字符打开，不然\n就不会被识别为回车
