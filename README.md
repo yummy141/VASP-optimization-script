@@ -30,4 +30,9 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 ### bash脚本
 第一个脚本Sub_opt_TH.sh，是针对第一步来做的，我们一段一段来读程序，看的时候一定要先想想这一行程序是什么意思，再看我的注解，要习惯直接读程序代码：
 - <pre>#!/bin/bash</pre>
-    - 看到#第一直觉会是这是一行注释，但是注意这里是#！，是有意义的。Linux的脚本基本都需要声明解释器在哪，这行就是声明解释器路径，表示由bin/目录下的bash来[解释]。(https://blog.csdn.net/jackalfly/article/details/7571616)
+    - 看到#第一直觉会是这是一行注释，但是注意这里是#！，是有意义的。Linux的脚本基本都需要声明解释器在哪，这行就是声明解释器路径，表示由bin/目录下的bash来[解释](https://blog.csdn.net/jackalfly/article/details/7571616)。
+- ``` shell
+tartdir=`pwd`
+nodes=12
+run=$startdir/run.sh
+```
