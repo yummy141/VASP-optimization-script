@@ -80,13 +80,13 @@ do
 现在有了循环变量，就对应的在循环体操作就可以了，也就是我们先前提到的重复内容：
 - （n）复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
 ```bash
-kdir opt$label
-cd opt$label
-cp ../run.sh ./
-cp ../POSCAR_initial POSCAR
-ln -sf ../KPOINTS KPOINTS
-ln -sf ../POTCAR POTCAR
-ln -sf ../INCAR INCAR
+    kdir opt$label
+    cd opt$label
+    cp ../run.sh ./
+    cp ../POSCAR_initial POSCAR
+    ln -sf ../KPOINTS KPOINTS
+    ln -sf ../POTCAR POTCAR
+    ln -sf ../INCAR INCAR
 ```
 - 首先是复制对应文件：我们创建操作文件夹，进入这个文件夹，然后把对应的运行文件run.sh和VASP四件套复制进来
 - 注意这里使用的是[ln -sf](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)是创建软连接的意思，类似与windows下的创建快捷方式。
