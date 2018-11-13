@@ -3,8 +3,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 ## 写在前面的话
 - 本篇教程以黑磷为例，演示如何用bash和Python脚本来优化晶格参数。
     - 在学习如何使用脚本前，大家要明白一件事，我们计算用的脚本，不涉及算法（algorithm）方面的效率问题，更多的是一些系统操作， 因此用哪种语言写都没什么差别，用自己喜欢的就好。
-    - 当然，在人工智能大行其道的8102年，喊声>“人生苦短，我用Python”
-    ，也许也是时代趋势。
+    - 当然，在人工智能大行其道的8102年，喊声“人生苦短，我用Python”，也许也是时代趋势。
     ![1.png](/img/1.png) 
     - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
 
@@ -101,3 +100,24 @@ bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
 ```
 - 这里使用awk来对对应的晶格常数向量进行赋值，-v代表赋值，而里面的printf与C语言中的类似。
 - 注意，之所以这么写，是因为bash下的向量默认为字符变量，要进行数学运算需要用到其它命令。
+```bash
+sed -i "3c\ $ax $ay $az" POSCAR
+sed -i "4c\ $bx $by $bz" POSCAR
+```
+- 接着用sed命令来对POSCAR进行修改，即将第三行和第四行对应修改
+- -i表示进行修改并保存（-i）
+    - 这是一个方便调试的设计
+- 3c\表示修改第三行
+- 注意：这里要用到变量，sed后面必须用双引号，用单引号无法识别变量。
+```bash
+yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
+```
+- 修改完后就可以提交脚本
+- **注意：这里把wyt.opt修改为你们对应的任务名字
+```bash
+printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
+label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
+cd ..
+```
+- 最后就是记录下对应的POSCAR修改数值到worklist中，递增label, 回到上级目录
+
