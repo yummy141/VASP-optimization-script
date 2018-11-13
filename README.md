@@ -52,5 +52,10 @@ printf 'yhrun -n %s -p TH_NET1 vasp.std.5.4.1 > log\n' $nodes >> $run
 ```
 - 这里是写出run.sh文件，即运行文件，包含声明解释器位置以及运行指令
 - bash里的printf和C语言中的很像，%s即表明为字符串，\n是转义字符即为回车，$nodes表明取nodes变量的值
-- >为新建一个文件，如果这个文件存在则覆盖这个文件
-- >>为把内容追加到这个文件中
+- \>为新建一个文件，如果这个文件存在则覆盖这个文件
+- \>\>为把内容追加到这个文件中
+```bash
+worklist=$startdir/worklist
+printf 'label ax ay az bx by bz Energy\n' > $worklist
+```
+- 理解上面的，这里就很简单了，就是声明worklist的路径，以及输出worklist的第一行
