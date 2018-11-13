@@ -3,7 +3,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 ## 写在前面的话
 - 本篇教程以黑磷为例，演示如何用bash和Python脚本来优化晶格参数。
     - 在学习如何使用脚本前，大家要明白一件事，我们计算用的脚本，不涉及算法（algorithm）方面的效率问题，更多的是一些系统操作， 因此用哪种语言写都没什么差别，用自己喜欢的就好。
-    - 当然，在人工智能大行其道的8102年，喊声> “人生苦短，我用Python”
+    - 当然，在人工智能大行其道的8102年，喊声>“人生苦短，我用Python”
     ，也许也是时代趋势。
     ![1.png](/img/1.png) 
     - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
@@ -59,3 +59,45 @@ worklist=$startdir/worklist
 printf 'label ax ay az bx by bz Energy\n' > $worklist
 ```
 - 理解上面的，这里就很简单了，就是声明worklist的路径，以及输出worklist的第一行
+```bash
+i=$(seq 4.57 0.01 4.59)
+j=$(seq 3.31 0.01 3.33)
+```
+- 这里声明“循环变量”，晶格常数a, b的变化范围
+- seq是bash的一个指令，输出一系列的值，seq FIRST INCREMENT LAST中的三个参数分别表明第一个参数，间隔值，最后一个参数，举例来讲，i变量就保存了三个数4.57，4.58，4.59
+- 值得注意的是，我也曾经想用awk来保存一个数值范围，但是由于精度的问题，awk会出现一些数据错误，有兴趣的读者可以尝试一下我脚本中注释掉的语句。
+```bash
+label=$(awk 'BEGIN{printf("%03d",1)}')
+```
+- 这里的label是一个计数变量，我们用awk将它转换为%3d的格式，如这里我们令初值为1，显示为001
+```bash
+for a in $i
+do
+    for b in $j 
+    do
+```
+- for循环，分别遍历序列i, 和序列j
+- i变量中有3个数字，j变量中有3个数字，所以一共运行3*3=9次循环体（详见worklist）
+现在有了循环变量，就对应的在循环体操作就可以了，也就是我们先前提到的重复内容：
+- （n）复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
+```bash
+kdir opt$label
+cd opt$label
+cp ../run.sh ./
+cp ../POSCAR_initial POSCAR
+ln -sf ../KPOINTS KPOINTS
+ln -sf ../POTCAR POTCAR
+ln -sf ../INCAR INCAR
+```
+- 首先是复制对应文件：我们创建操作文件夹，进入这个文件夹，然后把对应的运行文件run.sh和VASP四件套复制进来
+- 注意这里使用的是[ln -sf](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)是创建软连接的意思，类似与windows下的创建快捷方式。
+```bash
+ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
+ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+az=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+bx=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+by=$(awk -v b=$b 'BEGIN{printf("%.10f",b)}')
+bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+```
+- 这里使用awk来对对应的晶格常数向量进行赋值，-v代表赋值，而里面的printf与C语言中的类似。
+- 注意，之所以这么写，是因为bash下的向量默认为字符变量，要进行数学运算需要用到其它命令。
