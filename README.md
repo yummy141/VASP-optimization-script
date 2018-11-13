@@ -34,7 +34,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 ---
 
 
-### bash脚本
+## bash脚本
 第一个脚本Sub_opt_TH.sh，是针对第一步来做的，我们一段一段来读程序，看的时候一定要先想想这一行程序是什么意思，再看我的注解，要习惯直接读程序代码：
 ```bash
 #!/bin/bash</pre>
@@ -83,29 +83,29 @@ do
 现在有了循环变量，就对应的在循环体操作就可以了，也就是我们先前提到的重复内容：
 - （n）复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
 ```bash
-    kdir opt$label
-    cd opt$label
-    cp ../run.sh ./
-    cp ../POSCAR_initial POSCAR
-    ln -sf ../KPOINTS KPOINTS
-    ln -sf ../POTCAR POTCAR
-    ln -sf ../INCAR INCAR
+        mkdir opt$label
+        cd opt$label
+        cp ../run.sh ./
+        cp ../POSCAR_initial POSCAR
+        ln -sf ../KPOINTS KPOINTS
+        ln -sf ../POTCAR POTCAR
+        ln -sf ../INCAR INCAR
 ```
 - 首先是复制对应文件：我们创建操作文件夹，进入这个文件夹，然后把对应的运行文件run.sh和VASP四件套复制进来
 - 注意这里使用的是[ln -sf](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)是创建软连接的意思，类似与windows下的创建快捷方式。
 ```bash
-    ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
-    ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
-    az=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
-    bx=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
-    by=$(awk -v b=$b 'BEGIN{printf("%.10f",b)}')
-    bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+        ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
+        ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+        az=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+        bx=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+        by=$(awk -v b=$b 'BEGIN{printf("%.10f",b)}')
+        bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
 ```
 - 这里使用awk来对对应的晶格常数向量进行赋值，-v代表赋值，而里面的printf与C语言中的类似。
 - 注意，之所以这么写，是因为bash下的向量默认为字符变量，要进行数学运算需要用到其它命令。
 ```bash
-    sed -i "3c\ $ax $ay $az" POSCAR
-    sed -i "4c\ $bx $by $bz" POSCAR
+        sed -i "3c\ $ax $ay $az" POSCAR
+        sed -i "4c\ $bx $by $bz" POSCAR
 ```
 - 接着用sed命令来对POSCAR进行修改，即将第三行和第四行对应修改
 - -i表示进行修改并保存（-i）
@@ -113,19 +113,20 @@ do
 - 3c\表示修改第三行
 - 注意：这里要用到变量，sed后面必须用双引号，用单引号无法识别变量。
 ```bash
-    yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
+        yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
 ```
 - 修改完后就可以提交脚本
 - 注意：这里把wyt.opt修改为你们对应的任务名字
 ```bash
-    printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
-    label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
-    cd ..
+        printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
+        label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
+        cd ..
     done
 done
 ```
 - 最后就是记录下对应的POSCAR修改数值到worklist中，递增label, 回到上级目录  
 
+#### sub_opt_Energy_TH.sh
 至此，我们这个小脚本就完成了，那怎么把能量取出来呢？这里我写了另一个脚本：sub_opt_Energy_TH.sh:
 ```bash
 path=`pwd`
@@ -209,7 +210,7 @@ echo -e "Best POSCAR:\n$vector_a\n$vector_b\nEnergy_minimum: $Energy_minimum eV"
 ---
 
 
-### Python脚本
+## Python脚本
 到此，我们就把bash脚本讲完了，那想想有没有什么问题呢？有一个问题，就是我们在脚本里写的提交任务是直接按顺序提交的，但是天河上最多就只能提交30个任务，有没有办法只提交一个任务呢？
 - ![10.png](/img/10.png)
 答案当然是可以的，修改run.sh就行了，我们在Python脚本中实现了这一点。  
@@ -249,7 +250,7 @@ with open("worklist", "w+") as w:
             for a in linspace(4.57, 4.59, 3): 
                 for b in linspace(3.31, 3.33, 3):
 ```
-- 遍历a和b，同bash脚本，这里一共遍历了3*3
+- 遍历a和b，同bash脚本，这里一共遍历了3*3=9次
 ```python
                     system("mkdir opt%03d" % label)
                     chdir("opt%03d" % label)
@@ -288,3 +289,60 @@ with open("worklist", "w+") as w:
 system("yhbatch -n %d -p TH_NET1 -J wyt.opt ./run.sh " % nodes)
 ```
 - 然后用system函数，提交任务
+
+#### sub_opt_Energy_TH.py
+这样Python的第一个小脚本就完成了，有了bash脚本的基础，理解起来应该就很容易了。然后我们讲取能量的脚本：
+```python
+line = 2
+pwd = getcwd()
+dirs = listdir("./")
+worklist = path.join(pwd,"worklist")
+```
+- 定义line，要修改第几行
+- 利用listdir生成当前文件夹的所有文件和目录
+    - 注意文件并不是我们想要的，所以之后要再做处理
+- path.join()
+    - 把字符串拼起来，会自动添加路径中的“/”字符
+```python
+for i in dirs:
+    path_new = path.join(pwd, i)
+    if path.isdir(path_new)==False:
+        continue
+```
+- 这里就是遍历dirs中的路径，paht.join拼接好, 同时判断拼接后的path_new是文件（file）还是目录（directory）
+    - 如果是文件的话，我们就不做处理(continue)
+    - 反之，则继续做处理
+```python
+    chdir(path_new)
+```
+- 改变路径
+```python
+    if path.isfile("OUTCAR"):
+        OUTCAR = open("OUTCAR", "r").readlines()
+        for l in OUTCAR[::-1]:
+            if "free  energy   TOTEN" in l:
+                Energy = float(l.split()[-2])
+                break
+        
+        if Energy < Energy_minimum:
+            Energy_minimum = Energy
+            POSCAR_best = open("POSCAR","r").readlines()
+    else:
+        print "No OUTCAR exists in %s" %path_new
+        Energy = -1
+```
+- 这里我加了个操作，判断当前路径中是否含有OUTCAR，有的话，就进行操作，反之则输出错误信息，如果含有OUTCAR，我们首先读入OUTCAR，对OUTCAR进行逆序遍历（因为我们只需要最后的能量值，所以逆序）并对Energy做标记。
+- 如果含有OUTCAR，我们首先读入OUTCAR，对OUTCAR进行逆序遍历（因为我们只需要最后的能量值，所以逆序）
+    - 然后记录下来对应的能量值
+    - l.split()[-2]，就是这行字符的倒数第二个（如图所示）
+        - ![12.png](\img\12.png)
+    - 前面加个float是因为，我们希望把它转换为数值类型才能进行比较
+```python
+    system("sed -i '%ds/$/ %f/' %s" % (line, Energy, worklist))
+    line+=1
+```
+- 最后我们用bash脚本中提到的sed命令对worklist修改，以及完成对line变量的递增
+```python
+print "Best POSCAR:\n%s%sMinimum Energy: %f eV" % (POSCAR_best[2], POSCAR_best[3], Energy_minimum)
+```
+- 在循环体外，我们再把最优值输出来。
