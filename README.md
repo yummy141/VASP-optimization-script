@@ -8,8 +8,8 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
     ![1.png](/img/1.png) 
     - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
 ## 晶格优化回顾
-- 按照惯例，大家进到TH-1A各自的目录里，然后cp -r ../novice_country/Lesson2/  ./, 然后 cd Lesson2就可以看到基础的VASP四件套：
-![2.png](/img/2.png)
+- 按照惯例，大家进到TH-1A各自的目录里，然后cp -r ../novice_country/Lesson2/  ./, 然后 cd Lesson2就可以看到基础的VASP四件套：  
+  ![2.png](/img/2.png)
 - 现在我们回忆晶格优化怎么做的，由于我们要找到能量最低的晶格，所以需要修改POSCAR中的晶格常数，分别计算得到能量，然后找到能量最低点。具体来讲：
     - 复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
     - 复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
