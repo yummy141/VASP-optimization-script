@@ -116,7 +116,7 @@ do
     yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
 ```
 - 修改完后就可以提交脚本
-- **注意：这里把wyt.opt修改为你们对应的任务名字
+- 注意：这里把wyt.opt修改为你们对应的任务名字
 ```bash
     printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
     label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
@@ -205,3 +205,86 @@ echo -e "Best POSCAR:\n$vector_a\n$vector_b\nEnergy_minimum: $Energy_minimum eV"
 ```
 - 这里就是用echo命令把最优晶格和能量输出出来
 - -e表示把转义字符打开，不然\n就不会被识别为回车
+
+---
+
+
+### Python脚本
+到此，我们就把bash脚本讲完了，那想想有没有什么问题呢？有一个问题，就是我们在脚本里写的提交任务是直接按顺序提交的，但是天河上最多就只能提交30个任务，有没有办法只提交一个任务呢？
+- ![10.png](/img/10.png)
+答案当然是可以的，修改run.sh就行了，我们在Python脚本中实现了这一点。  
+同样地，我把Python代码逐行讲一遍，先讲第一个优化的脚本：Sub_opt_TH.py
+```python
+from os import system, chdir
+from numpy import linspace
+```
+- 从os和numpy库中导入我们需要用的函数
+```python
+nodes=24
+POSCAR = open('POSCAR_initial','r').readlines() 
+```
+- 设置我们要用的核数以及读入原始POSCAR，r表示read
+- 注意这里的POSCAR保存格式是Python的内置数据结构list
+```python
+with open("worklist", "w+") as w:
+```
+- 打开worklist，w表示写入，+表示如果存在则冲重新创建
+```python
+    w.write("label ax ay az bx by bz Energy\n")
+```
+- 写入worklist的表头
+```python
+        with open("run.sh", "w+") as f：
+```
+- 打开run.sh，准备写入，w+同上
+```python
+            f.write("#! /bin/bash\n")
+```
+- 写入run.sh第一行，解释器位置
+```python
+            label = 1
+```
+- 令文件夹序号初始值为1
+```python
+            for a in linspace(4.57, 4.59, 3): 
+                for b in linspace(3.31, 3.33, 3):
+```
+- 遍历a和b，同bash脚本，这里一共遍历了3*3
+```python
+                    system("mkdir opt%03d" % label)
+                    chdir("opt%03d" % label)
+                    system("ln -sf ../KPOINTS KPOINTS")
+                    system("ln -sf ../POTCAR POTCAR")
+                    system("ln -sf ../INCAR INCAR")
+```
+- 这里讨了个巧，直接利用system函数调用了bash中的命令
+- chdir同cd
+```python
+                    POSCAR[2] = " %.10f %.10f %.10f\n" %(a, 0.0, 0.0)
+                    POSCAR[3] = " %.10f %.10f %.10f\n" %(0.0, b, 0.0)
+                    with open("POSCAR","w+") as P:
+                        P.writelines(POSCAR)
+```
+- 修改POSCAR，同时在opt文件夹中输出POSCAR
+- 注意：这里的POSCAR的类型为Python的内置数据结构list
+```python
+                    w.write("opt%03d %2.6f %2.6f %2.6f %2.6f %2.6f %2.6f\n" %(label,a, 0.0, 0.0, 0.0, b, 0.0))
+```
+- 输出worklist
+```python
+                    f.write("cd opt%03d\n" % label)
+                    f.write("yhrun -n %d -p TH_NET1 vasp.std.5.4.1 > log\n" % nodes)
+                    f.write("cd ..\n\n")
+```
+- 我们直接在run.sh中写入cd命令，这样就不需要多次提交任务
+- 之所以能这样做，是因为run.sh本身就是一个bash脚本：
+    - ![11.png](/img/11.png)
+```python
+                   label += 1
+                   chdir("../")
+```
+- 循环体最后就是递增label，以及回到上层路径
+```python
+system("yhbatch -n %d -p TH_NET1 -J wyt.opt ./run.sh " % nodes)
+```
+- 然后用system函数，提交任务
