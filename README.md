@@ -95,7 +95,7 @@ do
         ln -sf ../INCAR INCAR
 ```
 - 首先是复制对应文件：我们创建操作文件夹，进入这个文件夹，然后把对应的运行文件run.sh和VASP四件套复制进来
-- 注意这里使用的是[ln -sf](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)是创建软连接的意思，类似与windows下的创建快捷方式。
+- 注意这里使用的是ln -sf是[创建软连接的意思](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)，类似与windows下的创建快捷方式。
 ```bash
         ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
         ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
