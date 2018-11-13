@@ -119,7 +119,7 @@ do
         yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
 ```
 - 修改完后就可以提交脚本
-- 注意：这里把wyt.opt修改为你们对应的任务名字
+- ** 注意：这里把wyt.opt修改为你们对应的任务名字 **
 ```bash
         printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
         label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
@@ -144,7 +144,7 @@ Energy_minimum=9999999999
 for i in $(find $path -name OUTCAR | sed 's/\/OUTCAR//g') ; do
 ```
 - find $path -name OUTCAR | sed 's/\/OUTCAR//g'
-    - 这行命令就非常trick了，用到了find命令，管道|，和sed替换
+    - 这行命令就比较trick，用到了find命令，管道|，和sed替换
     - 先看find $path -name OUTCAR，是找path目录下的OUTCAR路径，单独运行可以看到这样的结果：
         - ![5.png](/img/5.png)
     - 但是我们想要的是OUTCAR所在的路径，要将图中的OUTCAR删去，所以我们就用了sed命令
@@ -335,12 +335,12 @@ for i in dirs:
         print "No OUTCAR exists in %s" %path_new
         Energy = -1
 ```
-- 这里我加了个操作，判断当前路径中是否含有OUTCAR，有的话，就进行操作，反之则输出错误信息，如果含有OUTCAR，我们首先读入OUTCAR，对OUTCAR进行逆序遍历（因为我们只需要最后的能量值，所以逆序）并对Energy做标记。
+- 这里我加了个操作，判断当前路径中是否含有OUTCAR，有的话，就进行操作，反之则输出错误信息。
 - 如果含有OUTCAR，我们首先读入OUTCAR，对OUTCAR进行逆序遍历（因为我们只需要最后的能量值，所以逆序）
     - 然后记录下来对应的能量值
     - l.split()[-2]，就是这行字符的倒数第二个（如图所示）
         - ![12.png](/img/12.png)
-    - 前面加个float是因为，我们希望把它转换为数值类型才能进行比较
+    - 前面加个float是因为，我们要把它转换为数值类型才能进行比较
 ```python
     system("sed -i '%ds/$/ %f/' %s" % (line, Energy, worklist))
     line+=1
