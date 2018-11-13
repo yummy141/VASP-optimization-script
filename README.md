@@ -43,12 +43,14 @@ tartdir=`pwd`
 nodes=12  
 run=$startdir/run.sh
 ```
-
-
-
-
-```python
-tartdir=`pwd`  
-nodes=12  
-run=$startdir/run.sh
+- startdir声明了当前路径, =`pwd`表示赋值为使用pwd后的输出结果（即获得当前路径），而不是字符串"pwd"。
+- nodes=12，声明我们使用12个核。
+- run=$startdir/run.sh 即声明了在当前路径下的run.sh文件。
+```bash
+printf '#! /bin/bash\n' > $run
+printf 'yhrun -n %s -p TH_NET1 vasp.std.5.4.1 > log\n' $nodes >> $run
 ```
+- 这里是写出run.sh文件，即运行文件，包含声明解释器位置以及运行指令
+- bash里的printf和C语言中的很像，%s即表明为字符串，\n是转义字符即为回车，$nodes表明取nodes变量的值
+- >为新建一个文件，如果这个文件存在则覆盖这个文件
+- >>为把内容追加到这个文件中
