@@ -7,6 +7,9 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
     ，也许也是时代趋势。
     ![1.png](/img/1.png) 
     - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
+
+---
+
 ## 晶格优化回顾
 - 按照惯例，大家进到TH-1A各自的目录里，然后cp -r ../novice_country/Lesson2/  ./, 然后 cd Lesson2就可以看到基础的VASP四件套：  
     - ![2.png](/img/2.png)
@@ -17,6 +20,8 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
     ......  
     - (n) 复制对应文件，用vi编辑POSCAR，然后提交任务，输出能量。
 - 直到找到最低点，所有的操作都是重复的，除了vi编辑的POSCAR中的参数不同。那重复性的操作能让人想到编程中的什么呢？——如果回忆一下“面向过程”的编程学习，那肯定就是三大结构里的“循环”了，而循环体内部的内容就应该是前述的可抽象的重复性操作。讲到这里，我们就可以直接取看脚本了。
+
+---
 
 ## 运行结果
 - 在讲脚本之前，我们先看一下运行脚本后的结果（rz上传脚本*.sh后，chmod a+x *.sh, 然后./*.sh 运行 or rz上传脚本*.py， python ./*.py运行）
@@ -31,8 +36,15 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 第一个脚本Sub_opt_TH.sh，是针对第一步来做的，我们一段一段来读程序，看的时候一定要先想想这一行程序是什么意思，再看我的注解，要习惯直接读程序代码：
 - <pre>#!/bin/bash</pre>
     - 看到#第一直觉会是这是一行注释，但是注意这里是#！，是有意义的。Linux的脚本基本都需要声明解释器在哪，这行就是声明解释器路径，表示由bin/目录下的bash来[解释](https://blog.csdn.net/jackalfly/article/details/7571616)。
-- ``` shell
-tartdir=`pwd`
-nodes=12
+- 
+```shell
+tartdir=`pwd`  
+nodes=12  
+run=$startdir/run.sh
+```
+
+```python
+tartdir=`pwd`  
+nodes=12  
 run=$startdir/run.sh
 ```
