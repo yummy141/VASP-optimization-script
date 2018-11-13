@@ -5,7 +5,6 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
     - 在学习如何使用脚本前，大家要明白一件事，我们计算用的脚本，不涉及算法（algorithm）方面的效率问题，更多的是一些系统操作， 因此用哪种语言写都没什么差别，用自己喜欢的就好。
     - 当然，在人工智能大行其道的8102年，喊声“人生苦短，我用Python”，也许也是时代趋势。
         - ![1.png](/img/1.png) 
-    - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
 
 ---
 
@@ -29,7 +28,8 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
     - ![3.png](/img/3.png)
     - ![4.png](/img/4.png)
 - 图中我们在对应的opt[num]文件夹里做结构优化，优化完后运行脚本，输出目前得到的最优晶格和能量，并把所有的能量输出到worklist里。那由于作业管理系统的特性，我们把这个拆成两步，（1）执行对应的结构优化 （2）把能量提取出来放到worklist
-- 因此我写了两个脚本，分别来执行这两步操作
+- 因此我写了两个脚本，分别来执行这两步操作。
+**注： 以下的逐行讲程序比较冗长，建议读者先去把这些脚本阅读一遍，如果已经能够读懂，就不必再看接下来的教程。
 
 ---
 
@@ -337,7 +337,7 @@ for i in dirs:
 - 如果含有OUTCAR，我们首先读入OUTCAR，对OUTCAR进行逆序遍历（因为我们只需要最后的能量值，所以逆序）
     - 然后记录下来对应的能量值
     - l.split()[-2]，就是这行字符的倒数第二个（如图所示）
-        - ![12.png](\img\12.png)
+        - ![12.png](/img/12.png)
     - 前面加个float是因为，我们希望把它转换为数值类型才能进行比较
 ```python
     system("sed -i '%ds/$/ %f/' %s" % (line, Energy, worklist))
