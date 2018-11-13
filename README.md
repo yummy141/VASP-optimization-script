@@ -4,7 +4,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 - 本篇教程以黑磷为例，演示如何用bash和Python脚本来优化晶格参数。
     - 在学习如何使用脚本前，大家要明白一件事，我们计算用的脚本，不涉及算法（algorithm）方面的效率问题，更多的是一些系统操作， 因此用哪种语言写都没什么差别，用自己喜欢的就好。
     - 当然，在人工智能大行其道的8102年，喊声“人生苦短，我用Python”，也许也是时代趋势。
-    ![1.png](/img/1.png) 
+        - ![1.png](/img/1.png) 
     - 另外，如果读者能够直接看懂程序，就不需要看我接下去写的内容了。
 
 ---
@@ -91,18 +91,18 @@ do
 - 首先是复制对应文件：我们创建操作文件夹，进入这个文件夹，然后把对应的运行文件run.sh和VASP四件套复制进来
 - 注意这里使用的是[ln -sf](http://www.cnblogs.com/itech/archive/2009/04/10/1433052.html)是创建软连接的意思，类似与windows下的创建快捷方式。
 ```bash
-ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
-ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
-az=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
-bx=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
-by=$(awk -v b=$b 'BEGIN{printf("%.10f",b)}')
-bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+    ax=$(awk -v a=$a 'BEGIN{printf("%.10f",a)}')
+    ay=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+    az=$(awk -v a=$a 'BEGIN{printf("%.10f",0)}')
+    bx=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
+    by=$(awk -v b=$b 'BEGIN{printf("%.10f",b)}')
+    bz=$(awk -v b=$b 'BEGIN{printf("%.10f",0)}')
 ```
 - 这里使用awk来对对应的晶格常数向量进行赋值，-v代表赋值，而里面的printf与C语言中的类似。
 - 注意，之所以这么写，是因为bash下的向量默认为字符变量，要进行数学运算需要用到其它命令。
 ```bash
-sed -i "3c\ $ax $ay $az" POSCAR
-sed -i "4c\ $bx $by $bz" POSCAR
+    sed -i "3c\ $ax $ay $az" POSCAR
+    sed -i "4c\ $bx $by $bz" POSCAR
 ```
 - 接着用sed命令来对POSCAR进行修改，即将第三行和第四行对应修改
 - -i表示进行修改并保存（-i）
@@ -110,14 +110,39 @@ sed -i "4c\ $bx $by $bz" POSCAR
 - 3c\表示修改第三行
 - 注意：这里要用到变量，sed后面必须用双引号，用单引号无法识别变量。
 ```bash
-yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
+    yhbatch -n $nodes -p TH_NET1 -J wyt.opt ./run.sh
 ```
 - 修改完后就可以提交脚本
 - **注意：这里把wyt.opt修改为你们对应的任务名字
 ```bash
-printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
-label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
-cd ..
+    printf "opt%s %f %f %f %f %f %f\n" $label $ax $ay $az $bx $by $bz >> $worklist
+    label=$(awk -v l=$label 'BEGIN{printf("%03d",l+1)}')
+    cd ..
+    done
+done
 ```
-- 最后就是记录下对应的POSCAR修改数值到worklist中，递增label, 回到上级目录
+- 最后就是记录下对应的POSCAR修改数值到worklist中，递增label, 回到上级目录  
 
+至此，我们这个小脚本就完成了，那怎么把能量取出来呢？这里我写了另一个脚本：sub_opt_Energy_TH.sh:
+```bash
+path=`pwd`
+worklist=$path/worklist
+line=2
+Energy_minimum=9999999999
+```
+- 和前一个脚本类似，这里定义当前路径path, 以及声明worklist路径
+- line表明我们要把能量放到worklist的第几行
+- Energy_minimum是用来存放最低点能量的，我们把它初值定义得大一些，方便比较
+```bash
+for i in $(find $path -name OUTCAR | sed 's/\/OUTCAR//g') ; do
+```
+- find $path -name OUTCAR | sed 's/\/OUTCAR//g'
+    - 这行命令就非常trick了，用到了find命令，管道|，和sed替换
+    - 先看find $path -name OUTCAR，是找path目录下的OUTCAR路径，单独运行可以看到这样的结果：
+        - ![5.png](/img/5.png)
+    - 但是我们想要的是OUTCAR所在的路径，要将图中的OUTCAR删去，所以我们就用了sed命令
+    - sed 's/\/OUTCAR//g'
+        - s/代表select选择，\/OUTCAR/将“/OUTCAR”替换为空，而/g表示global全局替换
+    - 而为什么会有个管道|呢？
+    - 其实就是把find找到的东西输送给sed作为输入, 运行一下命令，就可以得到我们想要的结果:
+        - ![6.png](/img/6.png)
