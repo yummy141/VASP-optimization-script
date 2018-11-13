@@ -172,17 +172,17 @@ for i in $(find $path -name OUTCAR | sed 's/\/OUTCAR//g') ; do
     - -va=$Energy -vb=$Energy_minimum
         - 表示分别把能量赋值给a和b
     - 然后就比较a和b, print a<b?1:0
-        - 如果你们熟悉C的话，就会非常熟悉，？叫做三目运算符，如果a<b呢，就输出为1，反之则为0
+        - 如果你们熟悉C的话，就会非常熟悉，?叫做三目运算符，如果a<b呢，就输出为1，反之则为0
     - 注意：因为bash下的变量都默认为字符变量，所以才需要这么麻烦地比较。
 ```bash
     if [ $result -eq 1 ];then
-    Energy_minimum=$Energy
-    vector_a=`awk 'NR==3 {print; exit}' POSCAR`
-    vector_b=`awk 'NR==4 {print; exit}' POSCAR`
+        Energy_minimum=$Energy
+        vector_a=`awk 'NR==3 {print; exit}' POSCAR`
+        vector_b=`awk 'NR==4 {print; exit}' POSCAR`
     fi
 ```
 - 接着呢，我们用个if语句，如果能量比当前最小能量低，我们就把它记录下来
-- `awk 'NR==3 {print; exit}' POSCAR`
+- awk 'NR==3 {print; exit}' POSCAR
     - 同时记录下对应POSCAR中的晶格常数，这里NR==3，表示第三行，注意NR是awk的内置变量
 - 同理，NR==4表示第四行
 ```bash
