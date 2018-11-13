@@ -35,6 +35,7 @@ This is a Python/bash tutorial performing VASP optimization on TH-NET.
 
 
 ## bash脚本
+### Sub_opt_TH.sh
 第一个脚本Sub_opt_TH.sh，是针对第一步来做的，我们一段一段来读程序，看的时候一定要先想想这一行程序是什么意思，再看我的注解，要习惯直接读程序代码：
 ```bash
 #!/bin/bash</pre>
@@ -126,7 +127,7 @@ done
 ```
 - 最后就是记录下对应的POSCAR修改数值到worklist中，递增label, 回到上级目录  
 
-#### sub_opt_Energy_TH.sh
+### sub_opt_Energy_TH.sh
 至此，我们这个小脚本就完成了，那怎么把能量取出来呢？这里我写了另一个脚本：sub_opt_Energy_TH.sh:
 ```bash
 path=`pwd`
@@ -213,7 +214,8 @@ echo -e "Best POSCAR:\n$vector_a\n$vector_b\nEnergy_minimum: $Energy_minimum eV"
 ## Python脚本
 到此，我们就把bash脚本讲完了，那想想有没有什么问题呢？有一个问题，就是我们在脚本里写的提交任务是直接按顺序提交的，但是天河上最多就只能提交30个任务，有没有办法只提交一个任务呢？
 - ![10.png](/img/10.png)
-答案当然是可以的，修改run.sh就行了，我们在Python脚本中实现了这一点。  
+答案当然是可以的，修改run.sh就行了，我们在Python脚本中实现了这一点。
+### Sub_opt_TH.py  
 同样地，我把Python代码逐行讲一遍，先讲第一个优化的脚本：Sub_opt_TH.py
 ```python
 from os import system, chdir
@@ -290,7 +292,7 @@ system("yhbatch -n %d -p TH_NET1 -J wyt.opt ./run.sh " % nodes)
 ```
 - 然后用system函数，提交任务
 
-#### sub_opt_Energy_TH.py
+### sub_opt_Energy_TH.py
 这样Python的第一个小脚本就完成了，有了bash脚本的基础，理解起来应该就很容易了。然后我们讲取能量的脚本：
 ```python
 line = 2
